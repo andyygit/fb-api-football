@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>h3H</title>
+    <style>
+      * {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      p {
+        font-size: 0.875em;
+      }
+    </style>
+  </head>
+  <body>
+    <template id="my-template">
+      <div class="wrapper">
+        <h3 class="team"></h3>
+        <h5 class="league"></h5>
+        <p class="form"></p>
+      </div>
+    </template>
+    <div id="output"></div>
+    <script src="request.js"></script>
+    <script>
+      console.log(data);
+      const template = document.getElementById('my-template');
+      document.addEventListener('DOMContentLoaded', () => {
+        let match = template.content.querySelector('.wrapper');
+        data.forEach((el) => {
+          let a = document.importNode(match, true);
+          a.querySelector('.team').innerText = `${el.response.team.name}`;
+          a.querySelector(
+            '.league'
+          ).innerText = `${el.response.league.name} - ${el.response.league.country} - ${el.response.league.season}`;
+          a.querySelector('.form').innerText = `${el.response.form}`;
+          document.getElementById('output').appendChild(a);
+        });
+      });
+    </script>
+  </body>
+</html>

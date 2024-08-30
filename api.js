@@ -1,22 +1,24 @@
 import { writeFile } from 'fs';
+import { URL } from 'url';
 
 const host = 'https://v3.football.api-sports.io/';
-// const endpoint = 'status';
-// const endpoint = 'teams/statistics?season=2023&team=33&league=39';
-
-///////testing ---- uncommend above when done!!!!!!/////////
-const endpoint = 'teams?league=39&season=2023'; ///get all teams from premier league"
-///////end testing/////////
+const t1l1 = [2023, 33, 39];
+const t2l2 = [2023, 577, 310];
 
 const API_KEY = process.env.API_KEY;
 const API_HOST = host;
 
-const url = `${host}${endpoint}`;
+//api call
+const getData = async (endpoint, params) => {
+  let url = new URL(`${host}${endpoint}`);
+  if (params) {
+    url.searchParams.append('season', params[0]);
+    url.searchParams.append('team', params[1]);
+    url.searchParams.append('league', params[2]);
+  }
 
-//single call -> write to file the response
-const getData = async () => {
   try {
-    const res = await fetch(url, {
+    let res = await fetch(url, {
       headers: {
         'x-rapidapi-host': API_HOST,
         'x-apisports-key': API_KEY,
@@ -31,26 +33,37 @@ const getData = async () => {
     }
 
     const result = await res.json();
-
-    writeFile(
-      'request.json',
-      JSON.stringify(result),
-      {
-        encoding: 'utf8',
-      },
-      (err) => {
-        if (err) {
-          throw new Error('Ceva nu a mers la scrierea fisierului...');
-        }
-      }
-    );
-    // console.log(result);
+    return result;
   } catch (err) {
     console.error(err);
   }
 };
 
-//recursive function to get 2 (or more teams data)
-const callApi = async (endpoint, params = []) => {};
+//h2h 2 teams
+const h2hStatistics = async (endpoint, team1, team2, returnData = []) => {
+  let sleep = (time) => {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  };
+  let result = await getData(endpoint, team1);
+  returnData.push(result);
+  await sleep(1000);
+  result = await getData(endpoint, team2);
+  returnData.push(result);
+  writeFile(
+    'local/request.js',
+    `const data = ${JSON.stringify(returnData)}`,
+    {
+      encoding: 'utf8',
+    },
+    (err) => {
+      if (err) {
+        throw new Error('Ceva nu a mers la scrierea fisierului...');
+      }
+    }
+  );
+};
 
-getData();
+// h2hStatistics('teams/statistics', t1l1, t2l2);
+
+let status = await getData('status');
+console.log(status);
