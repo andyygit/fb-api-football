@@ -21,8 +21,8 @@ const getData = async (endpoint, params) => {
     let res = await fetch(url, {
       headers: {
         'x-rapidapi-host': API_HOST,
-        'x-apisports-key': API_KEY,
-      },
+        'x-apisports-key': API_KEY
+      }
     });
 
     const contentType = res.headers.get('content-type');
@@ -53,7 +53,7 @@ const h2hStatistics = async (endpoint, team1, team2, returnData = []) => {
     'local/request.js',
     `const data = ${JSON.stringify(returnData)}`,
     {
-      encoding: 'utf8',
+      encoding: 'utf8'
     },
     (err) => {
       if (err) {
