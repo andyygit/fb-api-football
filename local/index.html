@@ -24,38 +24,27 @@
       * {
         font-family: sans-serif;
       }
-      table, th, td {
+      div,
+      table,
+      td {
         border: 1px solid black;
+      }
+      .level2 {
+        margin-left: 20px;
+      }
+      .level3 {
+        margin-left: 40px;
+      }
+      .level4 {
+        margin-left: 60px;
+      }
+      .level5 {
+        margin-left: 80px;
       }
     </style>
   </head>
   <body>
-    <template id="my-template"></template>
-    <table id="league">
-      <tr>
-        <th colspan="3">league</th>
-      </tr>
-      <tr>
-        <th>name</th>
-        <th>country</th>
-        <th>season</th>
-      </tr>
-      <tr>
-        <td>Premier League</td>
-        <td>England</td>
-        <td>2023</td>
-      </tr>
-      <tr>
-        <th colspan="3">team</th>
-      </tr>
-      <tr>
-        <th colspan="3">name</th>
-      </tr>
-      <tr>
-        <td colspan="3">Manchester United</td>
-      </tr>
-    </table>
-    </div>
+    <div id="output"></div>
     <script src="request.js"></script>
     <script>
       // console.log(data);
@@ -74,6 +63,26 @@
         team
       } = data[0].response;
       console.log(biggest);
+
+      const recursiveIt = (target, level = 1) => {
+        const output = document.getElementById('output');
+        for (const prop in target) {
+          let row = document.createElement('div');
+          row.className = `level${level}`;
+          row.innerHTML = `${prop}`;
+          output.appendChild(row);
+          if (typeof target[prop] == 'object') {
+            recursiveIt(target[prop], level + 1);
+          } else {
+            let row = document.createElement('div');
+            row.className = `level${level}`;
+            row.innerHTML = `${target[prop]}`;
+            output.appendChild(row);
+          }
+        }
+      };
+
+      recursiveIt(data[0].response);
 
       // const frag = document.createDocumentFragment();
       // createTree(frag, data[0].response);
