@@ -50,7 +50,7 @@
             //style
             gridContainer.style.display = 'grid';
             let count = Object.keys(target[prop]).length;
-            gridContainer.style['grid-template-columns'] = `repeat(${count}), 1fr`;
+            gridContainer.style.gridTemplateColumns = `repeat(${count}, 1fr)`;
             //endstyle
             let cell = document.createElement('div');
             cell.innerHTML = `${prop}`;
