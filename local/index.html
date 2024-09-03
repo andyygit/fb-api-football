@@ -24,11 +24,6 @@
       * {
         font-family: sans-serif;
       }
-      div,
-      table,
-      td {
-        border: 1px solid black;
-      }
     </style>
   </head>
   <body>
@@ -37,58 +32,36 @@
     <script>
       // console.log(data[0].response);
 
-      let { biggest, cards, clean_sheet, failed_to_score, fixtures, form, goals, league, lineups, penalty, team } =
-        data[0].response;
+      // let {
+      //   biggest,
+      //   cards,
+      //   clean_sheet,
+      //   failed_to_score,
+      //   fixtures,
+      //   form,
+      //   goals,
+      //   league,
+      //   lineups,
+      //   penalty,
+      //   team
+      // } = data[0].response;
 
-      const recursiveIt = (target, level = 1) => {
-        const output = document.getElementById('output');
-        for (const prop in target) {
-          let row = document.createElement('div');
-          row.className = `level${level}`;
-          if (typeof target[prop] != 'object') {
-            let gridContainer = document.createElement('div');
-            //style
-            gridContainer.style.display = 'grid';
-            let count = Object.keys(target[prop]).length;
-            gridContainer.style.gridTemplateColumns = `repeat(${count}, 1fr)`;
-            //endstyle
-            let cell = document.createElement('div');
-            cell.innerHTML = `${prop}`;
-            gridContainer.appendChild(cell);
-            let cell1 = document.createElement('div');
-            cell1.innerHTML = `${target[prop]}`;
-            gridContainer.appendChild(cell1);
-            row.appendChild(gridContainer);
-            // row.innerHTML = `${prop}: ${target[prop]}`;
+      const createTree = (container, data) => {
+        const ul = container.appendChild(document.createElement('ul'));
+        for (const prop in data) {
+          const li = ul.appendChild(document.createElement('li'));
+          if (typeof data[prop] == 'object') {
+            li.textContent = prop;
+            createTree(li, data[prop]);
           } else {
-            row.innerHTML = `${prop}`;
-          }
-          output.appendChild(row);
-          if (typeof target[prop] == 'object') {
-            recursiveIt(target[prop], level + 1);
+            li.textContent = `${prop}: ${data[prop]}`;
           }
         }
       };
 
-      recursiveIt(data[0].response);
-
-      // const frag = document.createDocumentFragment();
-      // createTree(frag, data[0].response);
-      // document.getElementById('output').appendChild(frag);
-
-      // const template = document.getElementById('my-template');
-      // document.addEventListener('DOMContentLoaded', () => {
-      //   let match = template.content.querySelector('.wrapper');
-      //   data.forEach((el) => {
-      //     let a = document.importNode(match, true);
-      //     a.querySelector('.team').innerText = `${el.response.team.name}`;
-      //     a.querySelector(
-      //       '.league'
-      //     ).innerText = `${el.response.league.name} - ${el.response.league.country} - ${el.response.league.season}`;
-      //     a.querySelector('.form').innerText = `${el.response.form}`;
-      //     document.getElementById('output').appendChild(a);
-      //   });
-      // });
+      const frag = document.createDocumentFragment();
+      createTree(frag, data[0].response);
+      document.getElementById('output').appendChild(frag);
     </script>
   </body>
 </html>
