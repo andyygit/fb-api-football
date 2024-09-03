@@ -29,55 +29,43 @@
       td {
         border: 1px solid black;
       }
-      .level2 {
-        margin-left: 20px;
-      }
-      .level3 {
-        margin-left: 40px;
-      }
-      .level4 {
-        margin-left: 60px;
-      }
-      .level5 {
-        margin-left: 80px;
-      }
     </style>
   </head>
   <body>
     <div id="output"></div>
     <script src="request.js"></script>
     <script>
-      // console.log(data);
+      // console.log(data[0].response);
 
-      let {
-        biggest,
-        cards,
-        clean_sheet,
-        failed_to_score,
-        fixtures,
-        form,
-        goals,
-        league,
-        lineups,
-        penalty,
-        team
-      } = data[0].response;
-      console.log(biggest);
+      let { biggest, cards, clean_sheet, failed_to_score, fixtures, form, goals, league, lineups, penalty, team } =
+        data[0].response;
 
       const recursiveIt = (target, level = 1) => {
         const output = document.getElementById('output');
         for (const prop in target) {
           let row = document.createElement('div');
           row.className = `level${level}`;
-          row.innerHTML = `${prop}`;
+          if (typeof target[prop] != 'object') {
+            let gridContainer = document.createElement('div');
+            //style
+            gridContainer.style.display = 'grid';
+            let count = Object.keys(target[prop]).length;
+            gridContainer.style['grid-template-columns'] = `repeat(${count}), 1fr`;
+            //endstyle
+            let cell = document.createElement('div');
+            cell.innerHTML = `${prop}`;
+            gridContainer.appendChild(cell);
+            let cell1 = document.createElement('div');
+            cell1.innerHTML = `${target[prop]}`;
+            gridContainer.appendChild(cell1);
+            row.appendChild(gridContainer);
+            // row.innerHTML = `${prop}: ${target[prop]}`;
+          } else {
+            row.innerHTML = `${prop}`;
+          }
           output.appendChild(row);
           if (typeof target[prop] == 'object') {
             recursiveIt(target[prop], level + 1);
-          } else {
-            let row = document.createElement('div');
-            row.className = `level${level}`;
-            row.innerHTML = `${target[prop]}`;
-            output.appendChild(row);
           }
         }
       };
