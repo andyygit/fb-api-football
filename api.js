@@ -2,8 +2,8 @@ import { writeFile } from 'fs';
 import { URL } from 'url';
 
 const host = 'https://v3.football.api-sports.io/';
-const t1l1 = [2023, 33, 39];
-const t2l2 = [2023, 577, 310];
+const team1league1 = [2023, 33, 39];
+const team2league2 = [2023, 577, 310];
 
 const API_KEY = process.env.API_KEY;
 const API_HOST = host;
@@ -63,7 +63,7 @@ const h2hStatistics = async (endpoint, team1, team2, returnData = []) => {
   );
 };
 
-// h2hStatistics('teams/statistics', t1l1, t2l2);
+// h2hStatistics('teams/statistics', team1league1, team2league2);
 
 let status = await getData('status');
 console.log(status);
