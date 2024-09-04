@@ -24,6 +24,27 @@
       * {
         font-family: sans-serif;
       }
+      #output {
+        width: max-content;
+        margin: 0 auto;
+        display: flex;
+        gap: 50px;
+      }
+      ul,
+      li {
+        display: flex;
+      }
+      ul {
+        flex-direction: column;
+        margin: 5px 0;
+        border-bottom: 1px solid var(--light-grey-600);
+      }
+      ul:nth-child(2) {
+        direction: rtl;
+      }
+      ul li {
+        justify-content: space-between;
+      }
     </style>
   </head>
   <body>
@@ -61,6 +82,8 @@
 
       const frag = document.createDocumentFragment();
       createTree(frag, data[0].response);
+      document.getElementById('output').appendChild(frag);
+      createTree(frag, data[1].response);
       document.getElementById('output').appendChild(frag);
     </script>
   </body>
