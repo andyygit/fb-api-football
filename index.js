@@ -1,11 +1,18 @@
 import express from 'express';
-import { router as homeRouter } from './routes/default.js';
+import { router as h2hRouter } from './routes/h2h.js';
+import { router as statusRouter } from './routes/status.js';
 
 const app = express();
 
+app.use(express.static('public'));
 app.use(express.json());
 
-app.use('/', homeRouter);
+app.use('/h2h', h2hRouter);
+app.use('/status', statusRouter);
+
+app.get('/', (req, res, next) => {
+  res.render('index.html');
+});
 
 //redirects
 app.all('*', (req, res) => {
