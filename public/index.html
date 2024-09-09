@@ -5,13 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-      a {
-        margin-right: 30px;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+      }
+      input {
+        display: block;
+        font-size: 0.75em;
+        padding: 5px 15px;
+        border: 1px solid black;
+        outline: 0;
+      }
+      input:focus-visible {
+        border: 1px solid #199ec7;
+      }
+      .wrapper {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
       }
     </style>
   </head>
   <body>
-    <a href="status">Status (api count)</a>
-    <a href="h2h">Head to head</a>
+    <div class="wrapper">
+      <div>Head 2 head statistics</div>
+      <input type="text" name="keyword" id="keyword" placeholder="Team..." />
+      <div id="keywordout"></div>
+      <div id="output"></div>
+      <script>
+        const keyword = document.getElementById('keyword');
+        const keywordOut = document.getElementById('keywordout');
+        const output = document.getElementById('output');
+
+        const activate = (e) => {
+          keyword.value = `${e.target.dataset.name} - ${e.target.dataset.apiFootbalId} - ${e.target.dataset.countryId}`;
+          keywordOut.firstElementChild.remove();
+        };
+
+        keyword.addEventListener('keyup', (e) => {
+          let keyPressCount = e.target.value.length;
+          if (keyPressCount > 3) {
+            fetch(`http://${window.location.host}/h2h`, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              method: 'POST',
+              body: JSON.stringify({ team: e.target.value }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                if (keywordOut.childElementCount != 0) {
+                  keywordOut.firstElementChild.remove();
+                }
+                let output = document.createElement('ul');
+                data.forEach((item) => {
+                  console.log(Object.values(item));
+                  let li = document.createElement('li');
+                  li.setAttribute('data-apiFootbalId', `${Object.values(item.apiFootbalId)}`);
+                  li.setAttribute('data-countryId', `${Object.values(item.countryId)}`);
+                  li.setAttribute('data-name', `${Object.values(item.name)}`);
+                  li.appendChild(document.createTextNode(`${Object.values(item.name)}`));
+                  li.addEventListener('click', activate);
+                  output.appendChild(li);
+                });
+                keywordOut.appendChild(output);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
+        });
+      </script>
+    </div>
   </body>
 </html>

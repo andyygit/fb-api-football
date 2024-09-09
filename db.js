@@ -59,14 +59,12 @@ const countriesData = async () => {
         console.log('Connected to database');
       }
       db.serialize(() => {
-        let stmt = db.prepare(
-          'INSERT INTO Countries (name, code, flag) VALUES ($name, $code, $flag)'
-        );
+        let stmt = db.prepare('INSERT INTO Countries (name, code, flag) VALUES ($name, $code, $flag)');
         apiResponse.response.forEach((country) => {
           stmt.run({
             $name: country.name,
             $code: country.code,
-            $flag: country.flag
+            $flag: country.flag,
           });
         });
         stmt.finalize();
@@ -126,7 +124,7 @@ const leaguesData = async () => {
             $pi_footbal_id: league.league.id,
             $name: league.league.name,
             $type: league.league.type,
-            $countryname: league.country.name
+            $countryname: league.country.name,
           });
         });
         stmt.finalize();
@@ -198,7 +196,7 @@ const teamsDataPerCountry = async (country_id) => {
                   $name: item.team.name,
                   $code: item.team.code,
                   $country_id: country_id,
-                  $national: item.team.national ? 1 : 0
+                  $national: item.team.national ? 1 : 0,
                 });
               });
               stmt.finalize();
@@ -228,4 +226,4 @@ const teamsDataPerCountry = async (country_id) => {
 //end init DB
 /////////////////////////////////
 
-teamsDataPerCountry(120);
+teamsDataPerCountry(180);
