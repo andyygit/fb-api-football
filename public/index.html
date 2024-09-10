@@ -11,15 +11,30 @@
         box-sizing: border-box;
         font-family: sans-serif;
       }
+      label,
+      input {
+        font-size: 0.75em;
+      }
       input {
         display: block;
-        font-size: 0.75em;
+        width: max-content;
         padding: 5px 15px;
         border: 1px solid black;
         outline: 0;
       }
       input:focus-visible {
         border: 1px solid #199ec7;
+      }
+      ul,
+      li {
+        list-style: none;
+        cursor: pointer;
+      }
+      li {
+        border: 1px solid transparent;
+      }
+      li:hover {
+        border-bottom: 1px solid #199ec7;
       }
       .wrapper {
         width: 100vw;
@@ -34,54 +49,90 @@
   </head>
   <body>
     <div class="wrapper">
-      <div>Head 2 head statistics</div>
-      <input type="text" name="keyword" id="keyword" placeholder="Team..." />
+      <div>
+        <label for="keyword">Pick team 1</label>
+        <input type="text" name="keyword" id="keyword" placeholder="Team..." />
+      </div>
       <div id="keywordout"></div>
       <div id="output"></div>
-      <script>
-        const keyword = document.getElementById('keyword');
-        const keywordOut = document.getElementById('keywordout');
-        const output = document.getElementById('output');
-
-        const activate = (e) => {
-          keyword.value = `${e.target.dataset.name} - ${e.target.dataset.apiFootbalId} - ${e.target.dataset.countryId}`;
-          keywordOut.firstElementChild.remove();
-        };
-
-        keyword.addEventListener('keyup', (e) => {
-          let keyPressCount = e.target.value.length;
-          if (keyPressCount > 3) {
-            fetch(`http://${window.location.host}/h2h`, {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              method: 'POST',
-              body: JSON.stringify({ team: e.target.value }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (keywordOut.childElementCount != 0) {
-                  keywordOut.firstElementChild.remove();
-                }
-                let output = document.createElement('ul');
-                data.forEach((item) => {
-                  console.log(Object.values(item));
-                  let li = document.createElement('li');
-                  li.setAttribute('data-apiFootbalId', `${Object.values(item.apiFootbalId)}`);
-                  li.setAttribute('data-countryId', `${Object.values(item.countryId)}`);
-                  li.setAttribute('data-name', `${Object.values(item.name)}`);
-                  li.appendChild(document.createTextNode(`${Object.values(item.name)}`));
-                  li.addEventListener('click', activate);
-                  output.appendChild(li);
-                });
-                keywordOut.appendChild(output);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }
-        });
-      </script>
     </div>
+    <script>
+      class Store {
+        static getData(key) {
+          let data;
+          if (localStorage.getItem(key) === null) {
+            return false;
+          } else {
+            data = localStorage.getItem(key);
+          }
+          return data;
+        }
+        static addData(key, value) {
+          localStorage.setItem(key, value);
+        }
+        static delData() {
+          localStorage.clear();
+        }
+        static empty() {
+          if (localStorage.length == 0) {
+            return true;
+          }
+          return false;
+        }
+      }
+
+      const keyword = document.getElementById('keyword');
+      const keywordOut = document.getElementById('keywordout');
+      const output = document.getElementById('output');
+
+      const activate = (e) => {
+        let initilizator = 1;
+        if (Store.empty()) {
+          Store.addData(`team${initilizator}`, e.target.dataset);
+        }
+        // for (const item in e.target.dataset) {
+        //   Store.addData(item, e.target.dataset[item]);
+        // }
+        // keyword.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
+        // keyword.style.width = `${keyword.value.length}ch`;
+        keyword.value = '';
+        keywordOut.firstElementChild.remove();
+      };
+
+      keyword.addEventListener('keyup', (e) => {
+        let keyPressCount = e.target.value.length;
+        if (keyPressCount > 3) {
+          fetch(`http://${window.location.host}/h2h`, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify({ team: e.target.value }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (keywordOut.childElementCount != 0) {
+                keywordOut.firstElementChild.remove();
+              }
+              let output = document.createElement('ul');
+              data.forEach((item) => {
+                let li = document.createElement('li');
+                for (const [key, value] of Object.entries(item)) {
+                  li.setAttribute(`data-${key}`, value);
+                  if (key == 'name') {
+                    li.appendChild(document.createTextNode(value));
+                  }
+                }
+                li.addEventListener('click', activate);
+                output.appendChild(li);
+              });
+              keywordOut.appendChild(output);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      });
+    </script>
   </body>
 </html>
