@@ -6,6 +6,30 @@ import sqlite3 from 'sqlite3';
 
 let router = express.Router();
 
+router.get('/:id', (req, res, next) => {
+  let db = new sqlite3.Database('footbalData.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      return next({ status: 500, message: 'nu s-a putut conecta la db' });
+    } else {
+      console.log('Connected to database');
+    }
+    db.serialize(() => {
+      db.all(
+        'SELECT api_footbal_id AS apiFootbalId, name, type, countryname FROM Leagues WHERE countryname = (SELECT name FROM Countries where id = $id)',
+        {
+          $id: req.params.id,
+        },
+        (err, rows) => {
+          if (err) {
+            return next({ status: 500, message: 'ceva nu a mers bine' });
+          }
+          res.status(200).json(rows);
+        }
+      );
+    });
+  });
+});
+
 router.post('/', async (req, res, next) => {
   // console.log(req.body);
   // res.status(200).json(req.body.team);

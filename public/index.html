@@ -17,13 +17,12 @@
       }
       input {
         display: block;
-        width: max-content;
         padding: 5px 15px;
         border: 1px solid black;
         outline: 0;
       }
       input:focus-visible {
-        border: 1px solid #199ec7;
+        border: 2px solid #199ec7;
       }
       ul,
       li {
@@ -40,7 +39,7 @@
         width: 100vw;
         height: 100vh;
         display: flex;
-        flex-direction: column;
+        /* flex-direction: column; */
         align-items: center;
         justify-content: center;
         gap: 15px;
@@ -50,10 +49,14 @@
   <body>
     <div class="wrapper">
       <div>
-        <label for="keyword">Pick team 1</label>
-        <input type="text" name="keyword" id="keyword" placeholder="Team..." />
+        <label for="team">Pick team 1</label>
+        <input type="text" name="team" id="team" placeholder="Team..." />
       </div>
-      <div id="keywordout"></div>
+      <div>
+        <label for="league">League</label>
+        <input type="text" name="league" id="league" placeholder="League for country ID" disabled />
+      </div>
+      <div id="searchResults"></div>
       <div id="output"></div>
     </div>
     <script>
@@ -79,27 +82,42 @@
           }
           return false;
         }
+        static length() {
+          return localStorage.length;
+        }
       }
 
-      const keyword = document.getElementById('keyword');
-      const keywordOut = document.getElementById('keywordout');
+      const team = document.getElementById('team');
+      const league = document.getElementById('league');
+      const searchResults = document.getElementById('searchResults');
       const output = document.getElementById('output');
 
+      Store.addData('stage', '0');
+
       const activate = (e) => {
-        let initilizator = 1;
-        if (Store.empty()) {
-          Store.addData(`team${initilizator}`, e.target.dataset);
+        switch (parseInt(Store.getData('stage'))) {
+          case 0:
+            Store.addData('team1', JSON.stringify(e.target.dataset));
+            team.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
+            team.style.width = `${team.value.length}ch`;
+            // team.value = '';
+            league.value = e.target.dataset.countryid;
+            let event = new CustomEvent('change');
+            league.dispatchEvent(event);
+            searchResults.firstElementChild.remove();
+            Store.addData('stage', '1');
+            break;
+          case 1:
+            Store.addData('league1', JSON.stringify(e.target.dataset));
+            league.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.type}`;
+            league.style.width = `${league.value.length}ch`;
+            searchResults.firstElementChild.remove();
+            Store.addData('stage', '2');
+            break;
         }
-        // for (const item in e.target.dataset) {
-        //   Store.addData(item, e.target.dataset[item]);
-        // }
-        // keyword.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
-        // keyword.style.width = `${keyword.value.length}ch`;
-        keyword.value = '';
-        keywordOut.firstElementChild.remove();
       };
 
-      keyword.addEventListener('keyup', (e) => {
+      team.addEventListener('keyup', (e) => {
         let keyPressCount = e.target.value.length;
         if (keyPressCount > 3) {
           fetch(`http://${window.location.host}/h2h`, {
@@ -111,8 +129,8 @@
           })
             .then((res) => res.json())
             .then((data) => {
-              if (keywordOut.childElementCount != 0) {
-                keywordOut.firstElementChild.remove();
+              if (searchResults.childElementCount != 0) {
+                searchResults.firstElementChild.remove();
               }
               let output = document.createElement('ul');
               data.forEach((item) => {
@@ -126,12 +144,40 @@
                 li.addEventListener('click', activate);
                 output.appendChild(li);
               });
-              keywordOut.appendChild(output);
+              searchResults.appendChild(output);
             })
             .catch((err) => {
               console.log(err);
             });
         }
+      });
+
+      league.addEventListener('change', () => {
+        // alert('changed');
+        let countryId = parseInt(league.value);
+        fetch(`http://${window.location.host}/h2h/${countryId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (searchResults.childElementCount != 0) {
+              searchResults.firstElementChild.remove();
+            }
+            let output = document.createElement('ul');
+            data.forEach((item) => {
+              let li = document.createElement('li');
+              for (const [key, value] of Object.entries(item)) {
+                li.setAttribute(`data-${key}`, value);
+                if (key == 'name') {
+                  li.appendChild(document.createTextNode(value));
+                }
+              }
+              li.addEventListener('click', activate);
+              output.appendChild(li);
+            });
+            searchResults.appendChild(output);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       });
     </script>
   </body>
