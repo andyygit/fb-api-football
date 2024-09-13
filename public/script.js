@@ -11,24 +11,23 @@ const keyupListener = async (e) => {
     try {
       const res = await fetch(`http://${window.location.host}/h2h`, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         method: 'POST',
-        body: JSON.stringify({ team: e.target.value })
+        body: JSON.stringify({ team: e.target.value }),
       });
       if (!res.ok) {
         throw new Error(`Status not ok: ${res.status}`);
       }
       const json = await res.json();
-      const builder = new Listbuilder(json);
-      builder.build();
+      return json;
     } catch (err) {
       console.log(`Fetch error: ${err}`);
     }
   }
 };
 
-const changeListener = async (e) => {
+const changeListener = async () => {
   let countryId = document.getElementById('league').value;
   try {
     const res = await fetch(`http://${window.location.host}/h2h/${countryId}`);
@@ -36,8 +35,7 @@ const changeListener = async (e) => {
       throw new Error(`Status not ok: ${res.status}`);
     }
     const json = await res.json();
-    const builder = new Listbuilder(json);
-    builder.build();
+    return json;
   } catch (err) {
     console.log(`Fetch error: ${err}`);
   }
@@ -73,69 +71,58 @@ class Store {
     this.addData('stage', stage);
   }
   get stage() {
-    return !this.getData('stage') ? 0 : this.getData('stage');
+    return !this.getData('stage') ? 0 : parseInt(this.getData('stage'));
   }
 }
 
-class UI {
-  constructor(stage) {
-    this.stage = stage;
+class MyForm extends HTMLElement {
+  constructor() {
+    super();
     this.template = document.getElementById('my-template');
   }
-  render() {
-    switch (this.stage) {
-      case 0:
-        let source = this.template.content.getElementById('output');
-        let content = document.importNode(source, true);
-        let team = content.getElementById('team');
-        let league = content.getElementById('league');
-        team.innerHTML = this.stage == 0 ? 'Pick team 1' : 'Pick team 2';
-        league.innerHTML = 'League';
-        team.addEventListener('keyup', keyupListener);
-        league.addEventListener('change', changeListener);
-        document.getElementById('wrapper').appendChild(content);
-        break;
-      default:
-        console.error('no such case in UI.render');
-    }
-  }
-  clear() {
-    // clear content
+  connectedCallback() {
+    const source = this.template.content.getElementById('output');
+    const output = document.importNode(source, true);
+    this.appendChild(output);
   }
 }
+customElements.define('my-form', MyForm);
 
-class Listbuilder {
-  constructor(dataSource) {
-    this.searchResults = document.getElementById('searchResults');
-    this.dataSource = dataSource;
-  }
-  build() {
-    if (this.searchResults.childElementCount != 0) {
-      this.searchResults.firstElementChild.remove();
-    }
-    let output = document.createElement('ul');
-    this.dataSource.forEach((item) => {
-      let li = document.createElement('li');
-      for (const [key, value] of Object.entries(item)) {
-        li.setAttribute(`data-${key}`, value);
-        if (key == 'name') {
-          li.appendChild(document.createTextNode(value));
-        }
-      }
-      // li.addEventListener('click', activate);
-      output.appendChild(li);
-    });
-    this.searchResults.appendChild(output);
-  }
-}
+// class Listbuilder {
+//   constructor(dataSource) {
+//     this.searchResults = document.getElementById('searchResults');
+//     this.dataSource = dataSource;
+//   }
+//   build() {
+//     if (this.searchResults.childElementCount != 0) {
+//       this.searchResults.firstElementChild.remove();
+//     }
+//     let output = document.createElement('ul');
+//     output.setAttribute(`data-searchcriteria`, this.dataSource.searchcriteria);
+//     this.dataSource.returndata.forEach((item) => {
+//       let li = document.createElement('li');
+//       for (const [key, value] of Object.entries(item)) {
+//         li.setAttribute(`data-${key}`, value);
+//         if (key == 'name') {
+//           li.appendChild(document.createTextNode(value));
+//         }
+//       }
+//       output.appendChild(li);
+//       if (this.dataSource.searchcriteria == 'teams') {
+//         output.addEventListener('click', saveTeamToStore);
+//       } else if (this.dataSource.searchcriteria == 'leagues') {
+//         output.addEventListener('click', saveLeagueToStore);
+//       }
+//     });
+//     this.searchResults.appendChild(output);
+//   }
+// }
 
-//helper functions
+//init
 const init = () => {
   const storage = new Store();
   storage.delData();
-  storage.stage = 0;
-  const ui = new UI(storage.stage);
-  ui.render();
+  storage.stage = 1;
 };
 
-document.addEventListener('DOMContentLoaded', init);
+// document.addEventListener('DOMContentLoaded', init);

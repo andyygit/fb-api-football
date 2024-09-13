@@ -23,7 +23,10 @@ router.get('/:id', (req, res, next) => {
           if (err) {
             return next({ status: 500, message: 'ceva nu a mers bine' });
           }
-          res.status(200).json(rows);
+          res.status(200).json({
+            searchcriteria: 'leagues',
+            returndata: rows,
+          });
         }
       );
     });
@@ -51,7 +54,10 @@ router.post('/', async (req, res, next) => {
           if (err) {
             return next({ status: 500, message: 'ceva nu a mers bine' });
           }
-          res.status(200).json(rows);
+          res.status(200).json({
+            searchcriteria: 'teams',
+            returndata: rows,
+          });
         }
       );
     });
