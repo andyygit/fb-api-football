@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+      }
+      label,
+      input {
+        font-size: 0.75em;
+      }
+      input {
+        display: block;
+        padding: 5px 15px;
+        border: 1px solid black;
+        outline: 0;
+      }
+      input:focus-visible {
+        border: 2px solid #199ec7;
+      }
+      ul,
+      li {
+        list-style: none;
+        cursor: pointer;
+      }
+      li {
+        border: 1px solid transparent;
+      }
+      li:hover {
+        border-bottom: 1px solid #199ec7;
+      }
+      #wrapper {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .row {
+        display: flex;
+        gap: 15px;
+      }
+      #output {
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="output">
+        <div class="row">
+          <div>
+            <label for="team">Select team 1</label>
+            <input type="text" name="team" id="team" placeholder="Team..." />
+          </div>
+          <div>
+            <label for="league">League</label>
+            <input
+              type="text"
+              name="league"
+              id="league"
+              placeholder="League for country ID"
+              disabled
+            />
+          </div>
+          <div id="searchResults"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      class Store {
+        getData(key) {
+          let data;
+          if (localStorage.getItem(key) === null) {
+            return false;
+          } else {
+            data = localStorage.getItem(key);
+          }
+          return data;
+        }
+        addData(key, value) {
+          localStorage.setItem(key, value);
+        }
+        delData() {
+          localStorage.clear();
+        }
+        empty() {
+          if (localStorage.length == 0) {
+            return true;
+          }
+          return false;
+        }
+        length() {
+          return localStorage.length;
+        }
+        set stage(stage) {
+          this.addData('stage', stage);
+        }
+        get stage() {
+          return !this.getData('stage') ? 0 : parseInt(this.getData('stage'));
+        }
+      }
+
+      const template = document.getElementById('my-template');
+      const wrapper = document.getElementById('wrapper');
+      const output = document.getElementById('output');
+      const team = document.getElementById('team');
+      const league = document.getElementById('league');
+      const searchResults = document.getElementById('searchResults');
+
+      const activate = (e) => {
+        let storage = new Store();
+        switch (storage.stage) {
+          case 0:
+            storage.addData('team1', JSON.stringify(e.target.dataset));
+            team.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
+            team.setAttribute('disabled', '');
+            team.style.width = `${team.value.length}ch`;
+            league.value = e.target.dataset.countryid;
+            let event = new CustomEvent('change');
+            league.dispatchEvent(event);
+            searchResults.firstElementChild.remove();
+            storage.stage = 1;
+            break;
+          case 1:
+            storage.addData('league1', JSON.stringify(e.target.dataset));
+            league.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.type}`;
+            league.style.width = `${league.value.length}ch`;
+            searchResults.firstElementChild.remove();
+            storage.stage = 2;
+            team.removeAttribute('disabled');
+            team.previousElementSibling.textContent = 'Select team 2';
+            team.value = league.value = '';
+            break;
+          case 2:
+            storage.addData('team2', JSON.stringify(e.target.dataset));
+            team.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
+            team.setAttribute('disabled', '');
+            team.style.width = `${team.value.length}ch`;
+            league.value = e.target.dataset.countryid;
+            let event = new CustomEvent('change');
+            league.dispatchEvent(event);
+            searchResults.firstElementChild.remove();
+            storage.stage = 3;
+          case 3:
+            storage.addData('league2', JSON.stringify(e.target.dataset));
+            league.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.type}`;
+            league.style.width = `${league.value.length}ch`;
+            searchResults.firstElementChild.remove();
+        }
+      };
+
+      team.addEventListener('keyup', (e) => {
+        let keyPressCount = e.target.value.length;
+        if (keyPressCount > 3) {
+          fetch(`http://${window.location.host}/h2h`, {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({ team: e.target.value })
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (searchResults.childElementCount != 0) {
+                searchResults.firstElementChild.remove();
+              }
+              let output = document.createElement('ul');
+              data.returndata.forEach((item) => {
+                let li = document.createElement('li');
+                for (const [key, value] of Object.entries(item)) {
+                  li.setAttribute(`data-${key}`, value);
+                  if (key == 'name') {
+                    li.appendChild(document.createTextNode(value));
+                  }
+                }
+                li.addEventListener('click', activate);
+                output.appendChild(li);
+              });
+              searchResults.appendChild(output);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      });
+
+      league.addEventListener('change', () => {
+        // alert('changed');
+        let countryId = parseInt(league.value);
+        fetch(`http://${window.location.host}/h2h/${countryId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (searchResults.childElementCount != 0) {
+              searchResults.firstElementChild.remove();
+            }
+            let output = document.createElement('ul');
+            data.returndata.forEach((item) => {
+              let li = document.createElement('li');
+              for (const [key, value] of Object.entries(item)) {
+                li.setAttribute(`data-${key}`, value);
+                if (key == 'name') {
+                  li.appendChild(document.createTextNode(value));
+                }
+              }
+              li.addEventListener('click', activate);
+              output.appendChild(li);
+            });
+            searchResults.appendChild(output);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+      document.addEventListener('DOMContentLoaded', () => {
+        let storage = new Store();
+        storage.delData();
+        storage.stage = 0;
+      });
+    </script>
+  </body>
+</html>
