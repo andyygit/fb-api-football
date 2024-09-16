@@ -21,6 +21,10 @@
         border: 1px solid black;
         outline: 0;
       }
+      button {
+        padding: 4px 8px;
+        display: none;
+      }
       input:focus-visible {
         border: 2px solid #199ec7;
       }
@@ -35,6 +39,29 @@
       li:hover {
         border-bottom: 1px solid #199ec7;
       }
+      body {
+        -webkit-animation: 2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards b;
+        animation: 2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards b;
+        background: linear-gradient(-90deg, #6d6d6d25 1px, transparent 0), linear-gradient(#6d6d6d25 1px, transparent 0),
+          linear-gradient(-90deg, #6d6d6d25 1px, transparent 0), linear-gradient(#6d6d6d25 1px, transparent 0),
+          linear-gradient(transparent 6px, transparent 0, transparent 156px, transparent 0),
+          linear-gradient(-90deg, #6d6d6d25 1px, transparent 0),
+          linear-gradient(-90deg, transparent 6px, transparent 0, transparent 156px, transparent 0),
+          linear-gradient(#6d6d6d25 1px, transparent 0), 0 0;
+        background-size: 32px 32px, 32px 32px, 256px 256px, 256px 256px, 256px 256px, 256px 256px, 256px 256px,
+          256px 256px;
+
+        -webkit-animation: 2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards b;
+        animation: 2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards b;
+        background: linear-gradient(-90deg, #6d6d6d25 1px, transparent 0), linear-gradient(#6d6d6d25 1px, transparent 0),
+          linear-gradient(-90deg, #6d6d6d25 1px, transparent 0), linear-gradient(#6d6d6d25 1px, transparent 0),
+          linear-gradient(transparent 6px, transparent 0, transparent 156px, transparent 0),
+          linear-gradient(-90deg, #6d6d6d25 1px, transparent 0),
+          linear-gradient(-90deg, transparent 6px, transparent 0, transparent 156px, transparent 0),
+          linear-gradient(#6d6d6d25 1px, transparent 0), 0 0;
+        background-size: 32px 32px, 32px 32px, 256px 256px, 256px 256px, 256px 256px, 256px 256px, 256px 256px,
+          256px 256px;
+      }
       #wrapper {
         width: 100vw;
         height: 100vh;
@@ -45,6 +72,7 @@
       }
       .row {
         display: flex;
+        align-items: flex-end;
         gap: 15px;
       }
       #output {
@@ -62,15 +90,12 @@
           </div>
           <div>
             <label for="league">League</label>
-            <input
-              type="text"
-              name="league"
-              id="league"
-              placeholder="League for country ID"
-              disabled
-            />
+            <input type="text" name="league" id="league" placeholder="League for country ID" disabled />
           </div>
           <div id="searchResults"></div>
+          <div>
+            <button id="compare">Compare stats</button>
+          </div>
         </div>
       </div>
     </div>
@@ -108,52 +133,67 @@
         }
       }
 
-      const template = document.getElementById('my-template');
-      const wrapper = document.getElementById('wrapper');
       const output = document.getElementById('output');
       const team = document.getElementById('team');
       const league = document.getElementById('league');
       const searchResults = document.getElementById('searchResults');
+      const button = document.getElementById('compare');
 
-      const activate = (e) => {
+      const parseData = (data) => {
+        console.log(data);
+
+        output.firstElementChild.remove();
+        // let { biggest, cards } = data[0].response;
+        // console.log(biggest);
+        let { biggest, cards, clean_sheet, failde_to_score, fixtures, form, goals, league, lineups, penalty, team } =
+          data[0].response;
+        let row = document.createElement('div');
+        row.className = 'row';
+        row.appendChild(document.createTextNode(`League: ${league.name}`));
+        output.appendChild(row);
+      };
+
+      const activateTeam = (e) => {
         let storage = new Store();
-        switch (storage.stage) {
-          case 0:
-            storage.addData('team1', JSON.stringify(e.target.dataset));
-            team.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
-            team.setAttribute('disabled', '');
-            team.style.width = `${team.value.length}ch`;
-            league.value = e.target.dataset.countryid;
-            let event = new CustomEvent('change');
-            league.dispatchEvent(event);
-            searchResults.firstElementChild.remove();
-            storage.stage = 1;
-            break;
-          case 1:
-            storage.addData('league1', JSON.stringify(e.target.dataset));
-            league.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.type}`;
-            league.style.width = `${league.value.length}ch`;
-            searchResults.firstElementChild.remove();
-            storage.stage = 2;
-            team.removeAttribute('disabled');
-            team.previousElementSibling.textContent = 'Select team 2';
-            team.value = league.value = '';
-            break;
-          case 2:
-            storage.addData('team2', JSON.stringify(e.target.dataset));
-            team.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
-            team.setAttribute('disabled', '');
-            team.style.width = `${team.value.length}ch`;
-            league.value = e.target.dataset.countryid;
-            let event = new CustomEvent('change');
-            league.dispatchEvent(event);
-            searchResults.firstElementChild.remove();
-            storage.stage = 3;
-          case 3:
-            storage.addData('league2', JSON.stringify(e.target.dataset));
-            league.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.type}`;
-            league.style.width = `${league.value.length}ch`;
-            searchResults.firstElementChild.remove();
+        if (storage.stage == 0) {
+          storage.addData('team1', JSON.stringify(e.target.dataset));
+          team.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
+          team.style.width = `${team.value.length}ch`;
+          team.setAttribute('disabled', '');
+          league.value = e.target.dataset.countryid;
+          let event = new CustomEvent('change');
+          league.dispatchEvent(event);
+          searchResults.firstElementChild.remove();
+        } else if (storage.stage == 1) {
+          storage.addData('team2', JSON.stringify(e.target.dataset));
+          team.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.countryid}`;
+          team.style.width = `${team.value.length}ch`;
+          team.setAttribute('disabled', '');
+          league.value = e.target.dataset.countryid;
+          let event = new CustomEvent('change');
+          league.dispatchEvent(event);
+          searchResults.firstElementChild.remove();
+        }
+      };
+
+      const activateLeague = (e) => {
+        let storage = new Store();
+        if (storage.stage == 0) {
+          storage.addData('league1', JSON.stringify(e.target.dataset));
+          league.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.type}`;
+          league.style.width = `${league.value.length}ch`;
+          searchResults.firstElementChild.remove();
+          storage.stage = 1;
+          team.removeAttribute('disabled');
+          team.previousElementSibling.textContent = 'Select team 2';
+          team.value = league.value = '';
+        } else if (storage.stage == 1) {
+          storage.addData('league2', JSON.stringify(e.target.dataset));
+          league.value = `${e.target.dataset.name} - ${e.target.dataset.apifootbalid} - ${e.target.dataset.type}`;
+          league.style.width = `${league.value.length}ch`;
+          searchResults.firstElementChild.remove();
+          button.style.display = 'inline-block';
+          storage.stage = 2;
         }
       };
 
@@ -162,10 +202,10 @@
         if (keyPressCount > 3) {
           fetch(`http://${window.location.host}/h2h`, {
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify({ team: e.target.value })
+            body: JSON.stringify({ team: e.target.value }),
           })
             .then((res) => res.json())
             .then((data) => {
@@ -181,7 +221,7 @@
                     li.appendChild(document.createTextNode(value));
                   }
                 }
-                li.addEventListener('click', activate);
+                li.addEventListener('click', activateTeam);
                 output.appendChild(li);
               });
               searchResults.appendChild(output);
@@ -210,7 +250,7 @@
                   li.appendChild(document.createTextNode(value));
                 }
               }
-              li.addEventListener('click', activate);
+              li.addEventListener('click', activateLeague);
               output.appendChild(li);
             });
             searchResults.appendChild(output);
@@ -219,6 +259,28 @@
             console.log(err);
           });
       });
+
+      button.addEventListener('click', async () => {
+        let storage = new Store();
+        fetch(`http://${window.location.host}/h2h/h2hdetails`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({
+            team1: JSON.parse(storage.getData('team1')).apifootbalid,
+            league1: JSON.parse(storage.getData('league1')).apifootbalid,
+            team2: JSON.parse(storage.getData('team2')).apifootbalid,
+            league2: JSON.parse(storage.getData('league2')).apifootbalid,
+            season: 2023,
+          }),
+        })
+          .then((res) => res.json())
+          // .then((data) => console.log(data))
+          .then((data) => parseData(data))
+          .catch((err) => console.log(err));
+      });
+
       document.addEventListener('DOMContentLoaded', () => {
         let storage = new Store();
         storage.delData();

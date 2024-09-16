@@ -63,12 +63,21 @@ router.post('/', async (req, res, next) => {
     });
   });
 
-  // try {
-  //   const matches = await h2hStatistics('teams/statistics', team1league1, team2league2);
-  //   res.status(200).json(matches);
-  // } catch (err) {
-  //   console.log(err);
-  // }
+  router.post('/h2hdetails', async (req, res, next) => {
+    // console.log(req.body);
+    // res.status(200).json({ msg: 'ok', data: req.body });
+    try {
+      const matches = await h2hStatistics(
+        'teams/statistics',
+        [req.body.season, req.body.team1, req.body.league1],
+        [req.body.season, req.body.team2, req.body.league2]
+      );
+      res.status(200).json(matches);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
+    }
+  });
 });
 
 export { router };
