@@ -17,7 +17,7 @@ router.get('/:id', (req, res, next) => {
       db.all(
         'SELECT api_footbal_id AS apiFootbalId, name, type, countryname FROM Leagues WHERE countryname = (SELECT name FROM Countries where id = $id)',
         {
-          $id: req.params.id,
+          $id: req.params.id
         },
         (err, rows) => {
           if (err) {
@@ -25,10 +25,16 @@ router.get('/:id', (req, res, next) => {
           }
           res.status(200).json({
             searchcriteria: 'leagues',
-            returndata: rows,
+            returndata: rows
           });
         }
       );
+    });
+    db.close((err) => {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log('Close the database connection.');
     });
   });
 });
@@ -48,7 +54,7 @@ router.post('/', async (req, res, next) => {
       db.all(
         'SELECT id, api_footbal_id AS apiFootbalId, name, country_id AS countryId FROM Teams WHERE name LIKE $name',
         {
-          $name: `%${payload}%`,
+          $name: `%${payload}%`
         },
         (err, rows) => {
           if (err) {
@@ -56,10 +62,16 @@ router.post('/', async (req, res, next) => {
           }
           res.status(200).json({
             searchcriteria: 'teams',
-            returndata: rows,
+            returndata: rows
           });
         }
       );
+    });
+    db.close((err) => {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log('Close the database connection.');
     });
   });
 
