@@ -63,12 +63,20 @@
           256px 256px;
       }
       #wrapper {
+        position: relative;
         width: 100vw;
         height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+      }
+      #help {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 25px;
+        font-size: 0.9em;
       }
       .row {
         display: flex;
@@ -82,6 +90,26 @@
   </head>
   <body>
     <div id="wrapper">
+      <div id="help">
+        <div>â, à, á, ã, ä, Á, å, Å, Ä, ā, ą, ă, Â, ả, ạ</div>
+        <div>ç, Č, Č, ć, č, Ć, Ç</div>
+        <div>đ, ď, Ď, Đ</div>
+        <div>ë, é, è, É, ê, ě, ē, ė, ę, ə</div>
+        <div>œ, æ, Æ</div>
+        <div>ğ</div>
+        <div>ï, í, ı, İ, Í̂, î, ì, ī, Î, ĩ</div>
+        <div>Ķ</div>
+        <div>ļ, ł, Ł, ľ, Ľ</div>
+        <div>ñ, ň, ņ, ń</div>
+        <div>ó, ö, Ö, õ, ô, ø, Ø, ő, Ó, ò, ŏ, ồ</div>
+        <div>ř, Ř</div>
+        <div>ß, ş, Ş, Š, š, ș, Ś, ś, Ș</div>
+        <div>ť, ţ, ț, Ț, Ţ, Ť̊­</div>
+        <div>ú, ü, Ú, ů, û̌, ű, ū, ų, Ü</div>
+        <div>ý, Ý</div>
+        <div>ž, Ž, ź, Ż, ż</div>
+      </div>
+
       <div id="output">
         <div class="row">
           <div>
@@ -133,6 +161,7 @@
         }
       }
 
+      const help = document.getElementById('help');
       const output = document.getElementById('output');
       const team = document.getElementById('team');
       const league = document.getElementById('league');
@@ -143,6 +172,7 @@
         console.log(data);
 
         output.firstElementChild.remove();
+        help.remove();
         // let { biggest, cards } = data[0].response;
         // console.log(biggest);
         let { biggest, cards, clean_sheet, failde_to_score, fixtures, form, goals, league, lineups, penalty, team } =
