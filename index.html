@@ -40,6 +40,11 @@
         align-items: center;
         justify-content: center;
       }
+      #main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+      }
       .row {
         padding: 0.75em;
         background-color: #fff;
@@ -50,6 +55,7 @@
         display: flex;
         flex-direction: column;
       }
+      .table-head,
       .table-row {
         display: flex;
         gap: 2px;
@@ -75,41 +81,83 @@
           <div class="table-row"></div>
         </div>
       </div>
+      <div id="teamleagueseason">
+        <h4>team.name</h4>
+        <h5>league.name</h5>
+        <h5>league.season</h5>
+      </div>
     </template>
     <div id="wrapper">
-      <my-form text="form"></my-form>
+      <div id="main">
+        <div class="column1">
+          <my-teamleagueseason></my-teamleagueseason>
+          <my-form text="form"></my-form>
+        </div>
+        <div class="column2">
+          <div>column 2</div>
+        </div>
+      </div>
     </div>
     <script>
-      let form = 'WWWWWLWWDWDWDDLWWLDWWWWDWDWWWLWWWWDDWLLL';
+      // let form = 'WWWWWLWWDWDWDDLWWLDWWWWDWDWWWLWWWWDDWLLL';
 
-      class MyForm extends HTMLElement {
-        constructor() {
-          super();
-          this.template = document.getElementById('my-template');
-          this.source = this.template.content.querySelector('#form');
-        }
-        connectedCallback() {
-          this.appendChild(document.importNode(this.source, true));
-          this.querySelector('.table-head').innerHTML = this.getAttribute('text');
-          if (form) {
-            let substring = form.substring(0, 16);
-            for (const el of substring) {
-              let div = document.createElement('div');
-              if (el == 'W') {
-                div.className = 'square green';
-              } else if (el == 'D') {
-                div.className = 'square yellow';
-              } else {
-                div.className = 'square red';
-              }
-              this.querySelector('.table-row').appendChild(div);
-            }
-          } else {
-            this.querySelector('.table-row').appendChild(document.createTextNode('NULL'));
-          }
-        }
-      }
-      customElements.define('my-form', MyForm);
+      // class MyForm extends HTMLElement {
+      //   constructor() {
+      //     super();
+      //     this.template = document.getElementById('my-template');
+      //     this.source = this.template.content.querySelector('#form');
+      //   }
+      //   connectedCallback() {
+      //     this.appendChild(document.importNode(this.source, true));
+      //     this.querySelector('.table-head').innerHTML = this.getAttribute('text');
+      //     if (form) {
+      //       let substring = form.substring(0, 16);
+      //       for (const el of substring) {
+      //         let div = document.createElement('div');
+      //         if (el == 'W') {
+      //           div.className = 'square green';
+      //         } else if (el == 'D') {
+      //           div.className = 'square yellow';
+      //         } else {
+      //           div.className = 'square red';
+      //         }
+      //         this.querySelector('.table-row').appendChild(div);
+      //       }
+      //     } else {
+      //       this.querySelector('.table-row').appendChild(document.createTextNode('NULL'));
+      //     }
+      //   }
+      // }
+      // customElements.define('my-form', MyForm);
+
+      // let league = {
+      //   id: 39,
+      //   name: 'Premier League',
+      //   country: 'England',
+      //   logo: 'https://media.api-sports.io/football/leagues/39.png',
+      //   flag: 'https://media.api-sports.io/flags/gb.svg',
+      //   season: 2023
+      // };
+      // let team = {
+      //   id: 50,
+      //   name: 'Manchester City',
+      //   logo: 'https://media.api-sports.io/football/teams/50.png'
+      // };
+
+      // class MyTeamLeagueSeason extends HTMLElement {
+      //   constructor() {
+      //     super();
+      //     this.template = document.getElementById('my-template');
+      //     this.source = this.template.content.querySelector('#teamleagueseason');
+      //   }
+      //   connectedCallback() {
+      //     this.appendChild(document.importNode(this.source, true));
+      //     this.querySelector('h4').innerHTML = team.name;
+      //     this.querySelectorAll('h5')[0].innerHTML = league.name;
+      //     this.querySelectorAll('h5')[1].innerHTML = league.season;
+      //   }
+      // }
+      // customElements.define('my-teamleagueseason', MyTeamLeagueSeason);
     </script>
   </body>
 </html>
