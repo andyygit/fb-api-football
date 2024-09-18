@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      :root {
+        --light-grey-75: #e9ebed;
+        --light-grey-200: #cad0d4;
+        --light-green-500: #1da418;
+        --light-yellow-200: #f7ca03;
+        --light-red-500: #f65758;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: sans-serif;
+      }
+      .red {
+        background-color: var(--light-red-500);
+        color: var(--light-grey-75);
+      }
+      .green {
+        background-color: var(--light-green-500);
+        color: var(--light-grey-75);
+      }
+      .yellow {
+        background-color: var(--light-yellow-200);
+        color: var(--light-grey-75);
+      }
+      #wrapper {
+        background-color: var(--light-grey-75);
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .row {
+        padding: 0.75em;
+        background-color: #fff;
+        border-radius: 6px;
+        box-shadow: inset 0 0 0 1px var(--light-grey-200), 0 2px 1px 0 rgba(0, 0, 0, 0.05);
+      }
+      .table {
+        display: flex;
+        flex-direction: column;
+      }
+      .table-row {
+        display: flex;
+        gap: 2px;
+      }
+      .square {
+        width: 1em;
+        height: 1em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.875em;
+        padding: 8px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <template id="my-template">
+      <div id="form" class="row">
+        <div class="table">
+          <div class="table-head"></div>
+          <div class="table-row"></div>
+        </div>
+      </div>
+    </template>
+    <div id="wrapper">
+      <my-form text="form"></my-form>
+    </div>
+    <script>
+      let form = 'WWWWWLWWDWDWDDLWWLDWWWWDWDWWWLWWWWDDWLLL';
+
+      class MyForm extends HTMLElement {
+        constructor() {
+          super();
+          this.template = document.getElementById('my-template');
+          this.source = this.template.content.querySelector('#form');
+        }
+        connectedCallback() {
+          this.appendChild(document.importNode(this.source, true));
+          this.querySelector('.table-head').innerHTML = this.getAttribute('text');
+          if (form) {
+            let substring = form.substring(0, 16);
+            for (const el of substring) {
+              let div = document.createElement('div');
+              if (el == 'W') {
+                div.className = 'square green';
+              } else if (el == 'D') {
+                div.className = 'square yellow';
+              } else {
+                div.className = 'square red';
+              }
+              this.querySelector('.table-row').appendChild(div);
+            }
+          } else {
+            this.querySelector('.table-row').appendChild(document.createTextNode('NULL'));
+          }
+        }
+      }
+      customElements.define('my-form', MyForm);
+    </script>
+  </body>
+</html>
