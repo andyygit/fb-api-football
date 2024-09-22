@@ -55,6 +55,12 @@
         border-radius: 6px;
         box-shadow: inset 0 0 0 1px var(--light-grey-200), 0 2px 1px 0 rgba(0, 0, 0, 0.05);
       }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        padding: 3px;
+      }
     </style>
   </head>
   <body>
@@ -65,40 +71,17 @@
       </div>
     </div>
     <script>
-      const loppThroughJSON = (obj) => {
-        for (let key in obj) {
-          if (typeof obj[key] === 'object' && obj[key] != null) {
-            // console.log('************************ ', key, ' ************************');
-            let div = document.createElement('div');
-            div.innerHTML = key;
-            div.className = 'row';
-            document.querySelector('.column2').appendChild(div);
-            if (Array.isArray(obj[key])) {
-              for (let i = 0, j = obj[key].length; i < j; i++) {
-                loppThroughJSON(obj[key][i]);
-              }
-            } else {
-              loppThroughJSON(obj[key]);
-            }
-          } else {
-            // console.log(`${key}: ${obj[key]}`);
-            let div = document.createElement('div');
-            div.style.padding = '10px';
-            div.innerHTML = `${key}: ${obj[key]}`;
-            document.querySelector('.column2').appendChild(div);
-          }
-        }
+      const elementFromHtml = (html) => {
+        const template = document.createElement('template');
+        template.innerHTML = html.trim();
+        return template.content.firstElementChild;
       };
 
       document.addEventListener('DOMContentLoaded', () => {
         fetch('Untitled-2.json')
           .then((res) => res.json())
-          .then((data) => {
-            loppThroughJSON(data[0].response);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+          .then((data) => console.log(data))
+          .catch((err) => console.log(err));
       });
     </script>
   </body>
