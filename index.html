@@ -6,6 +6,7 @@
     <title>Document</title>
     <style>
       :root {
+        --light-grey-50: #f2f4f5;
         --light-grey-75: #e9ebed;
         --light-grey-200: #cad0d4;
         --light-green-500: #1da418;
@@ -45,29 +46,43 @@
         grid-template-columns: 1fr 1fr;
         gap: 25px;
       }
+      .column0,
       .column1 {
-        text-align: right;
+        display: grid;
       }
-      .row {
+      .card {
         padding: 0.75em;
         font-size: 0.875rem;
         background-color: #fff;
         border-radius: 6px;
         box-shadow: inset 0 0 0 1px var(--light-grey-200), 0 2px 1px 0 rgba(0, 0, 0, 0.05);
       }
-      table,
+      table {
+        margin: 0.75em 0;
+      }
       th,
       td {
-        border: 1px solid black;
+        /* border: 1px solid black; */
         padding: 3px;
+        text-align: center;
+      }
+      th {
+        background-color: var(--light-grey-200);
+        font-weight: normal;
+      }
+      td {
+        background-color: var(--light-grey-50);
+        padding: 20px 3px 3px 3px;
+        font-size: 1.2em;
+        font-weight: 700;
       }
     </style>
   </head>
   <body>
     <div id="wrapper">
       <div id="main">
-        <div class="column1"></div>
-        <div class="column2"></div>
+        <div class="card column0"></div>
+        <div class="card column1"></div>
       </div>
     </div>
     <script>
@@ -80,7 +95,165 @@
       document.addEventListener('DOMContentLoaded', () => {
         fetch('Untitled-2.json')
           .then((res) => res.json())
-          .then((data) => console.log(data))
+          .then((data) => {
+            // console.log(data);
+            data.forEach((columndata, index) => {
+              let {
+                league,
+                team,
+                form,
+                fixtures,
+                goals,
+                biggest,
+                clean_sheet,
+                failed_to_score,
+                penalty,
+                lineups,
+                cards,
+              } = columndata.response;
+              let leagueTable = document.createElement('table');
+              let leagueContent = elementFromHtml(`
+                <tbody>
+                  <tr><th colspan="12">${team.name} - ${league.name} - ${league.season}</th></tr>
+                  <tr><th colspan="12">Form</th></tr>
+                  <tr><td colspan="12">${form}</td></tr>
+                  <tr><th colspan="12">fixtures</th></tr>
+                  <tr>
+                    <th colspan="3">played</th>
+                    <th colspan="3">wins</th>
+                    <th colspan="3">draws</th>
+                    <th colspan="3">loses</th>
+                  </tr>
+                  <tr>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                  </tr>
+                  <tr>
+                    <td>${fixtures.played.home}</td>
+                    <td>${fixtures.played.away}</td>
+                    <td>${fixtures.played.total}</td>
+                    <td>${fixtures.wins.home}</td>
+                    <td>${fixtures.wins.away}</td>
+                    <td>${fixtures.wins.total}</td>
+                    <td>${fixtures.draws.home}</td>
+                    <td>${fixtures.draws.away}</td>
+                    <td>${fixtures.draws.total}</td>
+                    <td>${fixtures.loses.home}</td>
+                    <td>${fixtures.loses.away}</td>
+                    <td>${fixtures.loses.total}</td>
+                  </tr>
+                </tbody>
+              `);
+              leagueTable.appendChild(leagueContent);
+              document.querySelector(`.column${index}`).appendChild(leagueTable);
+              let goalsTable = document.createElement('table');
+              let goalsContent = elementFromHtml(`
+                <tbody>
+                  <tr><th colspan="14">goals</th></tr>
+                  <tr>
+                    <th colspan="7">for</th>
+                    <th colspan="7">against</th>
+                  </tr>
+                  <tr>
+                    <th colspan="3">total</th>
+                    <th colspan="3">average</th>
+                    <th>minute</th>
+                    <th colspan="3">total</th>
+                    <th colspan="3">average</th>
+                    <th>minute</th>
+                  </tr>
+                  <tr>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                    <th>-</th>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>total</th>
+                    <th>-</th>
+                  </tr>
+                  <tr>
+                    <td>${goals.for.total.home}</td>
+                    <td>${goals.for.total.away}</td>
+                    <td>${goals.for.total.total}</td>
+                    <td>${goals.for.average.home}</td>
+                    <td>${goals.for.average.away}</td>
+                    <td>${goals.for.average.total}</td>
+                    <td></td>
+                    <td>${goals.against.total.home}</td>
+                    <td>${goals.against.total.away}</td>
+                    <td>${goals.against.total.total}</td>
+                    <td>${goals.against.average.home}</td>
+                    <td>${goals.against.average.away}</td>
+                    <td>${goals.against.average.total}</td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              `);
+              goalsTable.appendChild(goalsContent);
+              document.querySelector(`.column${index}`).appendChild(goalsTable);
+              let biggestTable = document.createElement('table');
+              let biggestContent = elementFromHtml(`
+                <tbody>
+                  <tr><th colspan="11">biggest</th></tr>
+                  <tr>
+                    <th colspan="3">streak</th>
+                    <th colspan="2">wins</th>
+                    <th colspan="2">loses</th>
+                    <th colspan="4">goals</th>
+                    </tr>
+                  <tr>
+                    <th rowspan="2">wins</th>
+                    <th rowspan="2">draws</th>
+                    <th rowspan="2">loses</th>
+                    <th rowspan="2">home</th>
+                    <th rowspan="2">away</th>
+                    <th rowspan="2">home</th>
+                    <th rowspan="2">away</th>
+                    <th colspan="2">for</th>
+                    <th colspan="2">against</th>
+                    </tr>
+                  <tr>
+                    <th>home</th>
+                    <th>away</th>
+                    <th>home</th>
+                    <th>away</th>
+                  </tr>
+                  <tr>
+                    <td>${biggest.streak.wins}</td>
+                    <td>${biggest.streak.draws}</td>
+                    <td>${biggest.streak.loses}</td>
+                    <td>${biggest.wins.home}</td>
+                    <td>${biggest.wins.away}</td>
+                    <td>${biggest.loses.home}</td>
+                    <td>${biggest.loses.away}</td>
+                    <td>${biggest.goals.for.home}</td>
+                    <td>${biggest.goals.for.away}</td>
+                    <td>${biggest.goals.against.home}</td>
+                    <td>${biggest.goals.against.away}</td>
+                  </tr>
+                <tbody>
+              `);
+              biggestTable.appendChild(biggestContent);
+              document.querySelector(`.column${index}`).appendChild(biggestTable);
+            });
+          })
           .catch((err) => console.log(err));
       });
     </script>
