@@ -1,3 +1,4 @@
 # fb-api-football
 
-set .env file
+set .env file  
+API_KEY=zzzz....
